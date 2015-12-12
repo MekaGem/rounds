@@ -1,4 +1,4 @@
-class Level(object):
+class Room(object):
     def __init__(self, width, height):
         self.width = width
         self.height = height
@@ -7,7 +7,7 @@ class Level(object):
 
     def add_player(self, player):
         self._players[player.id] = player
-        player.set_level(self)
+        player.set_room(self)
 
     def remove_player(self, player_id):
         del self._players[player_id]

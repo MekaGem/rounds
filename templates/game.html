@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Game</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://code.createjs.com/createjs-2015.05.21.combined.js"></script>
+    <script src="input.js"></script>
+    <script src="network.js"></script>
+    <script src="game.js"></script>
+</head>
+<body onload="init();">
+    <div id="wrapper">
+        <canvas id="canvas" class="canvas-full-window" width="800" height="600"></canvas>
+        <form onsubmit="setNickname(); return false;" id="nickname_form" class="nickname-form">
+            <p><input type="text" id="nickname" name="nickname" placeholder="Nickname" required autofocus></p>
+            <p><button type="submit">Play!</button></p>
+        </form>
+    </div>
+</body>
+</html>

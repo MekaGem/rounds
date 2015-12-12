@@ -22,12 +22,13 @@ def player_removed(player):
     }
 
 
-def level_info(level):
+def room_info(room):
+    print('sending room info')
     return {
-        'type': 'LEVEL_INFO',
+        'type': 'ROOM_INFO',
         'content': {
-            'width': level.width,
-            'height': level.height
+            'width': room.width,
+            'height': room.height
         }
     }
 
