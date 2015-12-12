@@ -23,7 +23,6 @@ def player_removed(player):
 
 
 def room_info(room):
-    print('sending room info')
     return {
         'type': 'ROOM_INFO',
         'content': {

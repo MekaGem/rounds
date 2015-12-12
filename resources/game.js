@@ -2,6 +2,8 @@
 var width = 0;
 var height = 0;
 var map = [];
+var dx = 0;
+var dy = 0;
 
 // Players info
 var players = {};
@@ -10,24 +12,24 @@ var players = {};
 var stage;
 var canvas;
 var preload;
+var container;
 var time;
 var doge;
 
 var CELL_SIZE = 32;
-
-// Network
-var host = 'ws://HOST:9090/ws'.replace('HOST', document.domain);
-var socket;
 
 //function getTimestamp() {
 //    return new Date().getTime()
 //}
 
 function updatePlayer(player, content, timestamp) {
-    player.x = content['x'] * CELL_SIZE;
-    player.y = CELL_SIZE * 5 - content['y'] * CELL_SIZE;
+    player.x = dx + content['x'] * CELL_SIZE;
+    player.y = dy + -content['y'] * CELL_SIZE;
     player.xSpeed = 0;
     player.ySpeed = 0;
+
+    console.log(content['x'] + ' : ' + content['y']);
+    console.log(content);
 
     var moving = content['moving'];
 
@@ -49,22 +51,31 @@ function createMap() {
             var cell = new createjs.Shape();
             cell.x = x * CELL_SIZE;
             cell.y = y * CELL_SIZE;
-            cell.graphics.beginStroke("green").rect(0, 0, CELL_SIZE, CELL_SIZE);
+            cell.graphics.beginStroke('green').rect(0, -CELL_SIZE, CELL_SIZE, CELL_SIZE);
             row.push(cell);
-            stage.addChild(cell);
+            container.addChild(cell);
         }
         map.push(row);
     }
 }
 
 function updateMap() {
-    var cx = (canvas.width - (width * CELL_SIZE)) / 2;
-    var cy = (canvas.height - (height * CELL_SIZE)) / 2;
+    var cx = canvas.width / 2;
+    var cy = canvas.height / 2;
+
+    if (container) {
+        container.x = cx;
+        container.y = cy;
+    }
+
+    dx = -(width * CELL_SIZE) / 2;
+    dy = (height * CELL_SIZE) / 2;
+
     for (var x = 0; x < width; ++x) {
         for (var y = 0; y < height; ++y) {
             var cell = map[x][y];
-            cell.x = cx + x * CELL_SIZE;
-            cell.y = cy + y * CELL_SIZE;
+            cell.x = dx + x * CELL_SIZE;
+            cell.y = dy - y * CELL_SIZE;
         }
     }
 }
@@ -87,7 +98,7 @@ function onResize() {
 }
 
 function handleComplete() {
-    var image = preload.getResult("doge");
+    var image = preload.getResult('doge');
     doge = new createjs.Bitmap(image);
 
     doge.x = -100;
@@ -99,25 +110,28 @@ function handleComplete() {
 }
 
 function init() {
-    canvas = document.getElementById("canvas");
-
-    onResize();
+    canvas = document.getElementById('canvas');
 
     preload = new createjs.LoadQueue();
-    preload.on("complete", handleComplete, this);
-    preload.loadFile({id: "doge", src: "doge.png"});
+    preload.on('complete', handleComplete, this);
+    preload.loadFile({id: 'doge', src: 'doge.png'});
 
-    stage = new createjs.Stage("canvas");
+    stage = new createjs.Stage('canvas');
     window.onresize = onResize;
+
+    container = new createjs.Container();
+    stage.addChild(container);
 
     time = new createjs.Text('', '14px Arial', '#FFFFFF');
     stage.addChild(time);
 
-    createjs.Ticker.addEventListener("tick", tick);
+    createjs.Ticker.addEventListener('tick', tick);
     createjs.Ticker.framerate = 30;
 
     this.document.onkeydown = keyDown;
     this.document.onkeyup = keyUp;
+
+    onResize();
 }
 
 var direction = [0, 0];
@@ -136,12 +150,12 @@ function tick(event) {
     time.text = Math.floor(timer);
 
     var h_direction = 0;
-    if (keys[LEFT]) h_direction = -1; // "LEFT";
-    if (keys[RIGHT]) h_direction = 1; // "RIGHT";
+    if (keys[LEFT]) h_direction = -1; // 'LEFT';
+    if (keys[RIGHT]) h_direction = 1; // 'RIGHT';
 
     var v_direction = 0;
-    if (keys[UP]) v_direction = 1; // "UP";
-    if (keys[DOWN]) v_direction = -1; // "DOWN";
+    if (keys[UP]) v_direction = 1; // 'UP';
+    if (keys[DOWN]) v_direction = -1; // 'DOWN';
 
     if (h_direction != direction[0] || v_direction != direction[1]) {
         direction[0] = h_direction;
@@ -149,16 +163,16 @@ function tick(event) {
 
         var message;
         if (direction == null) {
-            message = JSON.stringify({
-                "action": "STAND"
-            });
+            message = {
+                'action': 'STAND'
+            };
         } else {
-            message = JSON.stringify({
-                "action": "MOVE",
-                "direction": direction
-            });
+            message ={
+                'action': 'MOVE',
+                'direction': direction
+            };
         }
-        socket.send(message);
+        sendMessage(message);
     }
 
     for (var player_id in players) {
@@ -171,7 +185,7 @@ function tick(event) {
 }
 
 function setNickname() {
-    socket = connect();
+    connect();
 
     stage.addChild(doge);
 
@@ -182,5 +196,5 @@ function setNickname() {
     nickname.y = 30;
     stage.addChild(nickname);
 
-    document.getElementById('nickname_form').style.visibility = "hidden";
+    document.getElementById('nickname_form').style.visibility = 'hidden';
 }
