@@ -14,30 +14,30 @@ function onMessage(message) {
     var content = message['content'];
     var timestamp = message['timestamp'];
 
-    var player;
-    if (type == 'PLAYER_UPDATE') {
-        if (content['id'] in players) {
-            player = players[content['id']];
-            updatePlayer(player, content, timestamp);
+    var unit;
+    if (type == 'PLAYER_UPDATE' || type == 'ENEMY_UPDATE') {
+        if (content['id'] in units) {
+            unit = units[content['id']];
+            updateUnit(unit, content, timestamp);
         } else {
-            player = new createjs.Shape();
+            unit = new createjs.Shape();
             console.log((content['x'] - content['width'] / 2) * CELL_SIZE);
-            player.graphics.beginFill('red').drawRect(
+            unit.graphics.beginFill('red').drawRect(
                 (-content['width'] / 2) * CELL_SIZE,
                 (-content['height'] / 2) * CELL_SIZE,
                 content['width'] * CELL_SIZE,
                 content['height'] * CELL_SIZE
             );
-            updatePlayer(player, content, timestamp);
+            updateUnit(unit, content, timestamp);
 
-            players[content['id']] = player;
-            container.addChild(player);
+            units[content['id']] = unit;
+            container.addChild(unit);
         }
-    } else if (type == 'PLAYER_REMOVED') {
-        if (content['id'] in players) {
-            player = players[content['id']];
-            container.removeChild(player);
-            delete players[content['id']];
+    } else if (type == 'PLAYER_REMOVED' || type == 'ENEMY_REMOVED') {
+        if (content['id'] in units) {
+            unit = units[content['id']];
+            container.removeChild(unit);
+            delete units[content['id']];
         }
     } else if (type == 'SERVER_TIMESTAMP') {
         // server_timestamp_diff = getTimestamp() - timestamp;
@@ -45,9 +45,13 @@ function onMessage(message) {
     } else if (type == 'ROOM_INFO') {
         width = content['width'];
         height = content['height'];
-        console.log('width = ' + width);
         createMap();
         updateMap();
+        queue.visible = false;
+    } else if (type == 'IN_QUEUE') {
+        updateQueue(content['waiting'], content['total']);
+    } else if (type == 'ROUND_STARTED') {
+        changeAnnounce('Round started!');
     }
 }
 

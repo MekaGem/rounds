@@ -6,7 +6,7 @@ var dx = 0;
 var dy = 0;
 
 // Players info
-var players = {};
+var units = {};
 
 // Canvas
 var stage;
@@ -14,6 +14,8 @@ var canvas;
 var preload;
 var container;
 var time;
+var queue;
+var announce;
 var doge;
 
 var CELL_SIZE = 32;
@@ -22,26 +24,18 @@ var CELL_SIZE = 32;
 //    return new Date().getTime()
 //}
 
-function updatePlayer(player, content, timestamp) {
-    player.x = dx + content['x'] * CELL_SIZE;
-    player.y = dy + -content['y'] * CELL_SIZE;
-    player.xSpeed = 0;
-    player.ySpeed = 0;
-
-    console.log(content['x'] + ' : ' + content['y']);
-    console.log(content);
+function updateUnit(unit, content, timestamp) {
+    unit.x = dx + content['x'] * CELL_SIZE;
+    unit.y = dy + -content['y'] * CELL_SIZE;
 
     var moving = content['moving'];
-
-    if (moving) {
-        player.xSpeed = CELL_SIZE * moving['x_speed'];
-        player.ySpeed = CELL_SIZE * moving['y_speed'];
-    }
+    unit.xSpeed = CELL_SIZE * moving['x_speed'];
+    unit.ySpeed = CELL_SIZE * moving['y_speed'];
 }
 
-function actPlayer(circle, delta) {
-    circle.x += circle.xSpeed * delta;
-    circle.y -= circle.ySpeed * delta;
+function actUnit(unit, delta) {
+    unit.x += unit.xSpeed * delta;
+    unit.y -= unit.ySpeed * delta;
 }
 
 function createMap() {
@@ -53,7 +47,7 @@ function createMap() {
             cell.y = y * CELL_SIZE;
             cell.graphics.beginStroke('green').rect(0, -CELL_SIZE, CELL_SIZE, CELL_SIZE);
             row.push(cell);
-            container.addChild(cell);
+            container.addChildAt(cell, 0);
         }
         map.push(row);
     }
@@ -125,6 +119,12 @@ function init() {
     time = new createjs.Text('', '14px Arial', '#FFFFFF');
     stage.addChild(time);
 
+    queue = new createjs.Text('', '24px Arial', '#FFFFFF');
+    queue.visible = false;
+
+    announce = new createjs.Text('', '24px Arial', '#FFFFFF');
+    announce.visible = false;
+
     createjs.Ticker.addEventListener('tick', tick);
     createjs.Ticker.framerate = 30;
 
@@ -175,9 +175,9 @@ function tick(event) {
         sendMessage(message);
     }
 
-    for (var player_id in players) {
-        if (players.hasOwnProperty(player_id)) {
-            actPlayer(players[player_id], event.delta / 1000);
+    for (var unitId in units) {
+        if (units.hasOwnProperty(unitId)) {
+            actUnit(units[unitId], event.delta / 1000);
         }
     }
 
@@ -186,6 +186,9 @@ function tick(event) {
 
 function setNickname() {
     connect();
+
+    container.addChild(queue);
+    container.addChild(announce);
 
     stage.addChild(doge);
 
@@ -197,4 +200,22 @@ function setNickname() {
     stage.addChild(nickname);
 
     document.getElementById('nickname_form').style.visibility = 'hidden';
+}
+
+function updateQueue(waiting, total) {
+    queue.text = 'Waiting for players... WAITING/TOTAL'
+        .replace('WAITING', waiting)
+        .replace('TOTAL', total);
+    queue.visible = true;
+}
+
+function changeAnnounce(message) {
+    announce.text = message;
+    announce.x = -announce.getMeasuredWidth() / 2;
+    announce.y = -announce.getMeasuredHeight() / 2;
+    announce.visible = true;
+
+    createjs.Tween.get(announce)
+        .wait(2000)
+        .to({visible: false});
 }

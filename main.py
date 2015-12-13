@@ -131,7 +131,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         if self in waiting_for_game:
             waiting_for_game.remove(self)
 
-
     @staticmethod
     def announce_to_all(message):
         for connection in WSHandler.connections:
@@ -144,16 +143,21 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 connection.write_message(message)
 
 PLAYERS_IN_ROOM = 2
-announced = [0]
+announced = [0, 0]
 
 
 def update():
+    if len(waiting_for_game) != announced[1]:
+        for connection in waiting_for_game:
+            connection.write_message(game.message.in_queue(len(waiting_for_game), PLAYERS_IN_ROOM))
+        announced[1] = len(waiting_for_game)
+
     if len(waiting_for_game) >= PLAYERS_IN_ROOM:
         connections = []
         for index in range(PLAYERS_IN_ROOM):
             connections.append(waiting_for_game.pop(0))
 
-        room = game.room.Room(10, 10)
+        room = game.room.Room(15, 15, WSHandler)
         rooms.append(room)
 
         for connection in connections:

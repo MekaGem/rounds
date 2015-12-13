@@ -6,34 +6,50 @@ def get_timestamp():
 
 
 def player_update(player):
-    return {
-        'type': 'PLAYER_UPDATE',
-        'content': player.to_dict(),
-        'timestamp': get_timestamp()
-    }
+    return _message('PLAYER_UPDATE', player.to_dict())
 
 
 def player_removed(player):
-    return {
-        'type': 'PLAYER_REMOVED',
-        'content': {
-            'id': player.id
-        }
-    }
+    return _message('PLAYER_REMOVED', {
+        'id': player.id
+    })
+
+
+def enemy_update(enemy):
+    return _message('ENEMY_UPDATE', enemy.to_dict())
+
+
+def enemy_removed(enemy):
+    return _message('ENEMY_REMOVED', {
+        'id': enemy.id
+    })
 
 
 def room_info(room):
-    return {
-        'type': 'ROOM_INFO',
-        'content': {
-            'width': room.width,
-            'height': room.height
-        }
-    }
+    return _message('ROOM_INFO', {
+        'width': room.width,
+        'height': room.height
+    })
+
+
+def round_started():
+    return _message('ROUND_STARTED', {})
 
 
 def server_timestamp():
+    return _message('SERVER_TIMESTAMP', {})
+
+
+def in_queue(waiting, total):
+    return _message('IN_QUEUE', {
+        'waiting': waiting,
+        'total': total
+    })
+
+
+def _message(message_type, content):
     return {
-        'type': 'SERVER_TIMESTAMP',
+        'type': message_type,
+        'content': content,
         'timestamp': get_timestamp()
     }

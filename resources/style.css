@@ -20,9 +20,9 @@ body {
 
 .nickname-form {
     background: #fff;
-    max-width: 330px;
+    /*max-width: 330px;*/
     padding: 15px;
-    margin: 0 auto;
+    /*margin: 0 auto;*/
 }
 
 .vertical-align {
