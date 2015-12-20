@@ -24,7 +24,6 @@ class Room(object):
         self._handler = handler
 
         self._enemies_to_create = 0
-        self._enemies_to_die = 0
         self._enemy_timer = 0
         self._round_pause = 0
 
@@ -43,7 +42,7 @@ class Room(object):
     def players(self):
         return self._players.values()
 
-    def add_simple_enemy(self, enemy):
+    def add_enemy(self, enemy):
         self._enemies[enemy.id] = enemy
         self._handler.announce_to_room(self, game.message.unit_update(enemy))
 
@@ -74,10 +73,10 @@ class Room(object):
         return x < -STEP_OUT or x > self.width + STEP_OUT or y < -STEP_OUT or y > self.height + STEP_OUT
 
     def _check_new_round(self):
-        return self._enemies_to_die == 0
+        return self._enemies_to_create == 0 and not self._enemies
 
     def _new_round(self):
-        self._enemies_to_create = self._enemies_to_die = 50
+        self._enemies_to_create = 50
 
         for player in [player for player in self._players.values() if not player.alive()]:
             player.resurrect()
@@ -99,8 +98,6 @@ class Room(object):
         for enemy_id, enemy in list(self._enemies.items()):
             if not enemy.alive():
                 del self._enemies[enemy_id]
-                if not enemy.simple_enemy:
-                    self._enemies_to_die -= 1
                 self._handler.announce_to_room(self, game.message.unit_removed(enemy))
 
     def _check_intersections(self):

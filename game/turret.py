@@ -38,7 +38,7 @@ class Turret(game.unit.Unit):
         bullet = TurretBullet(self.x, self.y)
         bullet.set_room(self._room)
         bullet.move((math.cos(self._rotation), math.sin(self._rotation)))
-        self._room.add_simple_enemy(bullet)
+        self._room.add_enemy(bullet)
 
     def kills_player(self):
         return False
