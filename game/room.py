@@ -46,6 +46,9 @@ class Room(object):
         for unit in itertools.chain(self._players.values(), self._enemies.values()):
             unit.update(delta)
 
+        self._kill_enemies()
+        self._check_intersections()
+
         if self._check_new_round():
             if self._round_pause is None:
                 self._round_pause = 5
@@ -61,8 +64,6 @@ class Room(object):
             if self._enemy_timer == 0 and self._enemies_to_create > 0:
                 self._create_enemy()
                 self._enemy_timer += random.random() * (0.5 + self._round_step) + self._round_step
-            self._kill_enemies()
-            self._check_intersections()
 
     def _check_new_round(self):
         return self._enemies_to_die == 0
@@ -72,7 +73,6 @@ class Room(object):
 
         for player in [player for player in self._players.values() if not player.alive()]:
             player.resurrect()
-            self._handler.announce_to_room(self, game.message.player_update(player))
 
         self._round_step *= 0.9
 
@@ -99,7 +99,7 @@ class Room(object):
         enemy.set_room(self)
         enemy.move(direction)
 
-        self._handler.announce_to_room(self, game.message.enemy_update(enemy))
+        self._handler.announce_to_room(self, game.message.unit_update(enemy))
 
         self._enemies[enemy.id] = enemy
         self._enemies_to_create -= 1
@@ -112,15 +112,16 @@ class Room(object):
             if _out_of_bound(self.width, self.height, enemy.x, enemy.y):
                 del self._enemies[enemy_id]
                 self._enemies_to_die -= 1
-                self._handler.announce_to_room(self, game.message.enemy_removed(enemy))
+                self._handler.announce_to_room(self, game.message.unit_removed(enemy))
 
     def _check_intersections(self):
         for player in [player for player in self._players.values() if player.alive()]:
             for enemy in self._enemies.values():
                 if player.intersects(enemy):
-                    player.move([0, 0], no_update=True)
+                    player.move([0, 0])
                     player.kill()
-                    self._handler.announce_to_room(self, game.message.player_update(player))
                     break
 
-
+            for friend in self._players.values():
+                if player.intersects(friend) and friend.can_be_resurrected():
+                    friend.resurrect()

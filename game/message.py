@@ -5,23 +5,13 @@ def get_timestamp():
     return int(time.time() * 1000)
 
 
-def player_update(player):
-    return _message('PLAYER_UPDATE', player.to_dict())
+def unit_update(unit):
+    return _message('UNIT_UPDATE', unit.to_dict())
 
 
-def player_removed(player):
-    return _message('PLAYER_REMOVED', {
-        'id': player.id
-    })
-
-
-def enemy_update(enemy):
-    return _message('ENEMY_UPDATE', enemy.to_dict())
-
-
-def enemy_removed(enemy):
-    return _message('ENEMY_REMOVED', {
-        'id': enemy.id
+def unit_removed(unit):
+    return _message('UNIT_REMOVED', {
+        'id': unit.id
     })
 
 
@@ -29,6 +19,12 @@ def room_info(room):
     return _message('ROOM_INFO', {
         'width': room.width,
         'height': room.height
+    })
+
+
+def player_id(player):
+    return _message('PLAYER_ID', {
+        'id': player.id
     })
 
 

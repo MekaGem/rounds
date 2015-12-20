@@ -4,6 +4,7 @@ import game.util
 
 
 class Unit(object):
+    TYPE = 'UNIT'
     id = 0
     ghost = False
 
@@ -28,6 +29,7 @@ class Unit(object):
     def to_dict(self):
         return {
             'id': self.id,
+            'type': self.TYPE,
             'x': self.x,
             'y': self.y,
             'width': self.width,

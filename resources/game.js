@@ -27,20 +27,6 @@ var CELL_SIZE = 32;
 //    return new Date().getTime()
 //}
 
-function updateUnit(unit, content, timestamp) {
-    unit.x = dx + content['x'] * CELL_SIZE;
-    unit.y = dy + -content['y'] * CELL_SIZE;
-
-    var moving = content['moving'];
-    unit.xSpeed = CELL_SIZE * moving['x_speed'];
-    unit.ySpeed = CELL_SIZE * moving['y_speed'];
-}
-
-function actUnit(unit, delta) {
-    unit.x += unit.xSpeed * delta;
-    unit.y -= unit.ySpeed * delta;
-}
-
 function createMap() {
     for (var x = 0; x < width; ++x) {
         var row = [];
@@ -154,8 +140,8 @@ function tick(event) {
 
     if (clock) {
         clock.graphics.clear();
-        //clock.graphics.beginStroke('white').setStrokeStyle(10).drawCircle(100, 100, 50);
-        clock.graphics.beginFill('white').arc(100, 100, 50, 0, 1, true);
+        //clock.graphics.beginStroke('white').setStrokeStyle(10).arc(100, 100, 50, 0, timer / 1000 * 2 * Math.PI, false);
+        //clock.graphics.beginFill('white').arc(100, 100, 50, 0, 1, true);
     }
 
     timer += event.delta;

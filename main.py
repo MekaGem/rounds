@@ -123,7 +123,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             del connection_to_room[self.id]
             del connection_to_player[self.id]
 
-            self.announce_to_all(game.message.player_removed(player))
+            self.announce_to_all(game.message.unit_removed(player))
 
             if not room.players():
                 rooms.remove(room)
@@ -142,7 +142,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             if connection.id in connection_to_room and connection_to_room[connection.id] is room:
                 connection.write_message(message)
 
-PLAYERS_IN_ROOM = 1
+PLAYERS_IN_ROOM = 2
 announced = [0, 0]
 
 
@@ -167,13 +167,14 @@ def update():
             y = random.random() * (room.height - 1) + 0.5
             player = game.player.Player(x, y, 1, 1, 4)
             room.add_player(player)
+            connection.write_message(game.message.player_id(player))
 
             connection_to_room[connection.id] = room
             connection_to_player[connection.id] = player.id
-            connection.announce_to_room(room, game.message.player_update(player))
+            connection.announce_to_room(room, game.message.unit_update(player))
 
             for player in room.players():
-                connection.write_message(game.message.player_update(player))
+                connection.write_message(game.message.unit_update(player))
 
     for room in rooms:
         for player in room.players():
@@ -181,7 +182,7 @@ def update():
                 announced[0] += 1
                 print(announced[0])
 
-                WSHandler.announce_to_room(room, game.message.player_update(player))
+                WSHandler.announce_to_room(room, game.message.unit_update(player))
                 player.updated()
 
         room.update(DELTA / 1000)
