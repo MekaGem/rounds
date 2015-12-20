@@ -3,6 +3,7 @@ import itertools
 
 import game.message
 import game.enemy
+import game.turret
 import game.util
 
 LEFT_SIDE = 0
@@ -27,7 +28,7 @@ class Room(object):
         self._enemy_timer = 0
         self._round_pause = 0
 
-        self._round_step = 0.2
+        self._round_step = 0.4
 
     def add_player(self, player):
         self._players[player.id] = player
@@ -42,8 +43,12 @@ class Room(object):
     def players(self):
         return self._players.values()
 
+    def add_simple_enemy(self, enemy):
+        self._enemies[enemy.id] = enemy
+        self._handler.announce_to_room(self, game.message.unit_update(enemy))
+
     def update(self, delta):
-        for unit in itertools.chain(self._players.values(), self._enemies.values()):
+        for unit in list(itertools.chain(self._players.values(), self._enemies.values())):
             unit.update(delta)
 
         self._kill_enemies()
@@ -65,6 +70,9 @@ class Room(object):
                 self._create_enemy()
                 self._enemy_timer += random.random() * (0.5 + self._round_step) + self._round_step
 
+    def out_of_bound(self, x, y):
+        return x < -STEP_OUT or x > self.width + STEP_OUT or y < -STEP_OUT or y > self.height + STEP_OUT
+
     def _check_new_round(self):
         return self._enemies_to_die == 0
 
@@ -77,27 +85,10 @@ class Room(object):
         self._round_step *= 0.9
 
     def _create_enemy(self):
-        side = random.randint(0, 3)
-        if side == LEFT_SIDE:
-            x = -STEP_OUT
-            y = 0.5 + random.random() * (self.height - 1)
-            direction = game.util.Direction(1, 0)
-        elif side == RIGHT_SIDE:
-            x = self.width + STEP_OUT
-            y = 0.5 + random.random() * (self.height - 1)
-            direction = game.util.Direction(-1, 0)
-        elif side == DOWN_SIDE:
-            x = 0.5 + random.random() * (self.width - 1)
-            y = -STEP_OUT
-            direction = game.util.Direction(0, 1)
-        else:  # side == UP_SIDE
-            x = 0.5 + random.random() * (self.width - 1)
-            y = self.height + STEP_OUT
-            direction = game.util.Direction(0, -1)
-
-        enemy = game.enemy.Enemy(x, y)
-        enemy.set_room(self)
-        enemy.move(direction)
+        if random.random() < 0.9:
+            enemy = game.enemy.Enemy.generate(self)
+        else:
+            enemy = game.turret.Turret.generate(self)
 
         self._handler.announce_to_room(self, game.message.unit_update(enemy))
 
@@ -105,19 +96,17 @@ class Room(object):
         self._enemies_to_create -= 1
 
     def _kill_enemies(self):
-        def _out_of_bound(width, height, x, y):
-            return x < -STEP_OUT or x > width + STEP_OUT or y < -STEP_OUT or y > height + STEP_OUT
-
         for enemy_id, enemy in list(self._enemies.items()):
-            if _out_of_bound(self.width, self.height, enemy.x, enemy.y):
+            if not enemy.alive():
                 del self._enemies[enemy_id]
-                self._enemies_to_die -= 1
+                if not enemy.simple_enemy:
+                    self._enemies_to_die -= 1
                 self._handler.announce_to_room(self, game.message.unit_removed(enemy))
 
     def _check_intersections(self):
         for player in [player for player in self._players.values() if player.alive()]:
             for enemy in self._enemies.values():
-                if player.intersects(enemy):
+                if enemy.kills_player() and player.intersects(enemy):
                     player.move([0, 0])
                     player.kill()
                     break

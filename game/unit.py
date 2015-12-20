@@ -7,6 +7,7 @@ class Unit(object):
     TYPE = 'UNIT'
     id = 0
     ghost = False
+    simple_enemy = False
 
     def __init__(self, x, y, width, height, speed):
         self.id = Unit.id
@@ -118,4 +119,7 @@ class Unit(object):
         if self.y + self.height / 2 < unit.y - unit.height / 2:
             return False
 
+        return True
+
+    def kills_player(self):
         return True

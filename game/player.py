@@ -34,7 +34,6 @@ class Player(game.unit.Unit):
 
     def to_dict(self):
         result = super().to_dict()
-
         result.update({
             'alive': self._alive,
             'resurrection': {

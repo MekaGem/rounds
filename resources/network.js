@@ -16,6 +16,7 @@ function onUnitUpdate(content, timestamp) {
         updateUnit(unit, content);
         drawUnit(unit);
     } else {
+        console.log('Created ' + content['type']);
         unit = new createjs.Shape();
         updateUnit(unit, content);
         drawUnit(unit);
@@ -66,7 +67,11 @@ function onMessage(message) {
     var type = message['type'];
     var content = message['content'];
     var timestamp = message['timestamp'];
-    onMessageFunctions[type](content, timestamp);
+    if (type in onMessageFunctions) {
+        onMessageFunctions[type](content, timestamp);
+    } else {
+        console.log('Unhandled message type ' + type);
+    }
 }
 
 function onClose() {
