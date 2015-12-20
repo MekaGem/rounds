@@ -16,7 +16,10 @@ var container;
 var time;
 var queue;
 var announce;
+
+// TO DELETE
 var doge;
+var clock;
 
 var CELL_SIZE = 32;
 
@@ -128,6 +131,9 @@ function init() {
     createjs.Ticker.addEventListener('tick', tick);
     createjs.Ticker.framerate = 30;
 
+    clock = new createjs.Shape();
+    stage.addChild(clock);
+
     this.document.onkeydown = keyDown;
     this.document.onkeyup = keyUp;
 
@@ -144,6 +150,12 @@ function tick(event) {
         if (doge.x >= canvas.width + 100) {
             doge.x -= canvas.width + 200;
         }
+    }
+
+    if (clock) {
+        clock.graphics.clear();
+        //clock.graphics.beginStroke('white').setStrokeStyle(10).drawCircle(100, 100, 50);
+        clock.graphics.beginFill('white').arc(100, 100, 50, 0, 1, true);
     }
 
     timer += event.delta;
@@ -206,6 +218,8 @@ function updateQueue(waiting, total) {
     queue.text = 'Waiting for players... WAITING/TOTAL'
         .replace('WAITING', waiting)
         .replace('TOTAL', total);
+    queue.x = -queue.getMeasuredWidth() / 2;
+    queue.y = -queue.getMeasuredHeight() / 2;
     queue.visible = true;
 }
 

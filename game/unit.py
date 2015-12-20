@@ -5,6 +5,7 @@ import game.util
 
 class Unit(object):
     id = 0
+    ghost = False
 
     def __init__(self, x, y, width, height, speed):
         self.id = Unit.id
@@ -46,7 +47,7 @@ class Unit(object):
     def updated(self):
         self._need_update = False
 
-    def move(self, direction):
+    def move(self, direction, no_update=False):
         changed = False
         if direction is None:
             changed = bool(self.direction)
@@ -76,7 +77,7 @@ class Unit(object):
                 direction[1]
             )
 
-        if changed:
+        if changed and not no_update:
             self._need_update = True
 
     def _inside_x(self, x):
@@ -93,12 +94,26 @@ class Unit(object):
             self.x += self.direction.x * self.speed * delta
             self.y += self.direction.y * self.speed * delta
 
-            if self._inside_x(old_x) and not self._inside_x(self.x):
-                self.x = max(0.5, min(self._room.width - 0.5, self.x))
-                self._need_update = True
-                self.direction = game.util.Direction(0, self.direction.y)
+            if not self.ghost:
+                if self._inside_x(old_x) and not self._inside_x(self.x):
+                    self.x = max(0.5, min(self._room.width - 0.5, self.x))
+                    self._need_update = True
+                    self.direction = game.util.Direction(0, self.direction.y)
 
-            if self._inside_y(old_y) and not self._inside_y(self.y):
-                self.y = max(0.5, min(self._room.height - 0.5, self.y))
-                self._need_update = True
-                self.direction = game.util.Direction(self.direction.x, 0)
+                if self._inside_y(old_y) and not self._inside_y(self.y):
+                    self.y = max(0.5, min(self._room.height - 0.5, self.y))
+                    self._need_update = True
+                    self.direction = game.util.Direction(self.direction.x, 0)
+
+    def intersects(self, unit):
+        if self.x - self.width / 2 > unit.x + unit.width / 2:
+            return False
+        if self.x + self.width / 2 < unit.x - unit.width / 2:
+            return False
+
+        if self.y - self.height / 2 > unit.y + unit.height/ 2:
+            return False
+        if self.y + self.height / 2 < unit.y - unit.height / 2:
+            return False
+
+        return True

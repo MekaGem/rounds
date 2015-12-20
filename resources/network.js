@@ -8,6 +8,22 @@ function onOpen() {
     });
 }
 
+function drawUnit(type, content, graphics) {
+    var color;
+    if (type == 'PLAYER_UPDATE') {
+        color = content['alive'] ? 'yellow' : 'red';
+    } else {
+        color = 'blue'
+    }
+    graphics.clear();
+    graphics.beginFill(color).drawRect(
+        (-content['width'] / 2) * CELL_SIZE,
+        (-content['height'] / 2) * CELL_SIZE,
+        content['width'] * CELL_SIZE,
+        content['height'] * CELL_SIZE
+    );
+}
+
 function onMessage(message) {
     message = JSON.parse(message.data);
     var type = message['type'];
@@ -18,16 +34,11 @@ function onMessage(message) {
     if (type == 'PLAYER_UPDATE' || type == 'ENEMY_UPDATE') {
         if (content['id'] in units) {
             unit = units[content['id']];
+            drawUnit(type, content, unit.graphics);
             updateUnit(unit, content, timestamp);
         } else {
             unit = new createjs.Shape();
-            console.log((content['x'] - content['width'] / 2) * CELL_SIZE);
-            unit.graphics.beginFill('red').drawRect(
-                (-content['width'] / 2) * CELL_SIZE,
-                (-content['height'] / 2) * CELL_SIZE,
-                content['width'] * CELL_SIZE,
-                content['height'] * CELL_SIZE
-            );
+            drawUnit(type, content, unit.graphics);
             updateUnit(unit, content, timestamp);
 
             units[content['id']] = unit;

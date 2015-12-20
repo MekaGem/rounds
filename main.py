@@ -142,7 +142,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             if connection.id in connection_to_room and connection_to_room[connection.id] is room:
                 connection.write_message(message)
 
-PLAYERS_IN_ROOM = 2
+PLAYERS_IN_ROOM = 1
 announced = [0, 0]
 
 
