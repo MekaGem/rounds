@@ -7,6 +7,12 @@ var keys = {};
 
 function keyDown(event) {
     keys[event.keyCode] = true;
+
+    if (event.keyCode == 32) {
+        sendMessage({
+            'action': 'USE_ABILITY'
+        })
+    }
 }
 
 function keyUp(event) {

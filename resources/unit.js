@@ -10,17 +10,24 @@ function drawPlayer(unit) {
     var h = unit.h * CELL_SIZE;
 
     unit.graphics.clear();
-    unit.graphics.beginFill(color).drawRect(-w / 2, -h / 2, w, h);
+    unit.graphics.beginFill(color).drawRect(-w / 2, -h / 2, w, h).endFill();
 
     if (playerId == unit.id) {
-        unit.graphics.beginFill('black').rect(-3, -3, 6, 6);
+        unit.graphics.beginStroke('white').setStrokeStyle(2).drawRect(-w / 2, -h / 2, w, h).endStroke();
+        unit.graphics.beginFill('black').rect(-3, -3, 6, 6).endFill();
     }
 
     if (unit.resurrection) {
-        unit.graphics.endFill();
         unit.graphics.beginStroke('white');
         unit.graphics.setStrokeStyle(3);
         unit.graphics.arc(0, 0, w / 4, 0, unit.resurrection * 2 * Math.PI, false);
+        unit.graphics.endStroke();
+    }
+
+    if (unit.invulnerable) {
+        unit.alpha = 0.5;
+    } else {
+        unit.alpha = 1;
     }
 }
 
@@ -50,7 +57,6 @@ function drawTurret(unit) {
 }
 
 function drawTurretBullet(unit) {
-    console.log('lolololo');
     var w = unit.w * CELL_SIZE;
     var h = unit.h * CELL_SIZE;
 
@@ -70,6 +76,7 @@ function updateUnit(unit, content) {
         unit.resurrection = content['resurrection']['left'];
         unit.resurrectionSpeed = content['resurrection']['speed'];
         unit.alive = content['alive'];
+        unit.invulnerable = content['invulnerable'];
     }
 
     if (unit.type == 'TURRET') {

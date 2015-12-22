@@ -16,7 +16,6 @@ function onUnitUpdate(content, timestamp) {
         updateUnit(unit, content);
         drawUnit(unit);
     } else {
-        console.log('Created ' + content['type']);
         unit = new createjs.Shape();
         updateUnit(unit, content);
         drawUnit(unit);
@@ -46,7 +45,7 @@ function onInQueue(content, timestamp) {
 }
 
 function onRoundStarted(content, timestamp) {
-    changeAnnounce('Round started!');
+    changeAnnounce('Round ' + content['round'] + ' started!');
 }
 
 function onPlayerId(content, timestamp) {

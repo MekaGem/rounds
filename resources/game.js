@@ -19,7 +19,6 @@ var announce;
 
 // TO DELETE
 var doge;
-var clock;
 
 var CELL_SIZE = 32;
 
@@ -117,9 +116,6 @@ function init() {
     createjs.Ticker.addEventListener('tick', tick);
     createjs.Ticker.framerate = 30;
 
-    clock = new createjs.Shape();
-    stage.addChild(clock);
-
     this.document.onkeydown = keyDown;
     this.document.onkeyup = keyUp;
 
@@ -138,10 +134,10 @@ function tick(event) {
         }
     }
 
-    if (clock) {
-        clock.graphics.clear();
-        //clock.graphics.beginStroke('white').setStrokeStyle(10).arc(100, 100, 50, 0, timer / 1000 * 2 * Math.PI, false);
-        //clock.graphics.beginFill('white').arc(100, 100, 50, 0, 1, true);
+    if (playerId != null) {
+        var player = units[playerId];
+        console.log();
+        container.setChildIndex(player, container.numChildren - 1);
     }
 
     timer += event.delta;

@@ -26,7 +26,7 @@ class Room(object):
         self._enemies_to_create = 0
         self._enemy_timer = 0
         self._round_pause = 0
-
+        self._current_round = 0
         self._round_step = 0.4
 
     def add_player(self, player):
@@ -55,12 +55,12 @@ class Room(object):
 
         if self._check_new_round():
             if self._round_pause is None:
-                self._round_pause = 5
+                self._round_pause = 3
             else:
                 self._round_pause = max(0, self._round_pause - delta)
                 if self._round_pause == 0:
                     self._new_round()
-                    self._handler.announce_to_room(self, game.message.round_started())
+                    self._handler.announce_to_room(self, game.message.round_started(self._current_round))
                     self._round_pause = None
                     self._enemy_timer += 1
         else:
@@ -76,6 +76,7 @@ class Room(object):
         return self._enemies_to_create == 0 and not self._enemies
 
     def _new_round(self):
+        self._current_round += 1
         self._enemies_to_create = 50
 
         for player in [player for player in self._players.values() if not player.alive()]:
@@ -103,7 +104,7 @@ class Room(object):
     def _check_intersections(self):
         for player in [player for player in self._players.values() if player.alive()]:
             for enemy in self._enemies.values():
-                if enemy.kills_player() and player.intersects(enemy):
+                if enemy.kills_player() and player.intersects(enemy) and not player.invulnerable():
                     player.move([0, 0])
                     player.kill()
                     break

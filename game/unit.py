@@ -47,6 +47,9 @@ class Unit(object):
     def need_update(self):
         return self._need_update
 
+    def set_update(self):
+        self._need_update = True
+
     def updated(self):
         self._need_update = False
 
@@ -81,7 +84,7 @@ class Unit(object):
             )
 
         if changed and not no_update:
-            self._need_update = True
+            self.set_update()
 
     def _inside_x(self, x):
         return 0.5 < x < self._room.width - 0.5
@@ -100,12 +103,12 @@ class Unit(object):
             if not self.ghost:
                 if self._inside_x(old_x) and not self._inside_x(self.x):
                     self.x = max(0.5, min(self._room.width - 0.5, self.x))
-                    self._need_update = True
+                    self.set_update()
                     self.direction = game.util.Direction(0, self.direction.y)
 
                 if self._inside_y(old_y) and not self._inside_y(self.y):
                     self.y = max(0.5, min(self._room.height - 0.5, self.y))
-                    self._need_update = True
+                    self.set_update()
                     self.direction = game.util.Direction(self.direction.x, 0)
 
     def intersects(self, unit):

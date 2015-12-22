@@ -109,6 +109,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                     player.move(message['direction'])
                 elif action == 'STAND':
                     player.move(None)
+                elif action == 'USE_ABILITY':
+                    player.use_ability()
 
     def on_close(self):
         WSHandler.connections.remove(self)
@@ -180,7 +182,7 @@ def update():
         for player in room.players():
             if player.need_update():
                 announced[0] += 1
-                print(announced[0])
+                # print(announced[0])
 
                 WSHandler.announce_to_room(room, game.message.unit_update(player))
                 player.updated()

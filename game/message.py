@@ -28,8 +28,10 @@ def player_id(player):
     })
 
 
-def round_started():
-    return _message('ROUND_STARTED', {})
+def round_started(current_round):
+    return _message('ROUND_STARTED', {
+        'round': current_round
+    })
 
 
 def server_timestamp():
