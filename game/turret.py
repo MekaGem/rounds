@@ -5,7 +5,7 @@ import game.unit
 
 ROTATION_SPEED = math.pi / 2
 RELOAD_TIME = 0.4
-PREPARE_TIME = 1
+PREPARE_TIME = 2
 LIFE_TIME = 4
 
 
@@ -40,14 +40,11 @@ class Turret(game.unit.Unit):
         bullet.move((math.cos(self._rotation), math.sin(self._rotation)))
         self._room.add_enemy(bullet)
 
-    def kills_player(self):
-        return False
-
     def to_dict(self):
         result = super().to_dict()
         result.update({
             'preparation': {
-                'left': self._prepare_timer,
+                'left': self._prepare_timer / PREPARE_TIME,
                 'speed': 1 / PREPARE_TIME
             }
         })
@@ -63,6 +60,12 @@ class Turret(game.unit.Unit):
 
     def alive(self):
         return self._life_timer > 0
+
+    def kills_player(self):
+        return False
+
+    def can_be_killed(self):
+        return self._prepare_timer > 0
 
 
 class TurretBullet(game.unit.Unit):

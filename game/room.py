@@ -95,20 +95,34 @@ class Room(object):
         self._enemies[enemy.id] = enemy
         self._enemies_to_create -= 1
 
+    def _kill_enemy(self, enemy):
+        del self._enemies[enemy.id]
+        self._handler.announce_to_room(self, game.message.unit_removed(enemy))
+
     def _kill_enemies(self):
-        for enemy_id, enemy in list(self._enemies.items()):
+        for enemy in list(self._enemies.values()):
             if not enemy.alive():
-                del self._enemies[enemy_id]
-                self._handler.announce_to_room(self, game.message.unit_removed(enemy))
+                self._kill_enemy(enemy)
 
     def _check_intersections(self):
+        dead_players = set()
+        dead_enemies = set()
+
         for player in [player for player in self._players.values() if player.alive()]:
-            for enemy in self._enemies.values():
-                if enemy.kills_player() and player.intersects(enemy) and not player.invulnerable():
-                    player.move([0, 0])
-                    player.kill()
-                    break
+            for enemy in [enemy for enemy in self._enemies.values() if enemy.intersects(player)]:
+                if enemy.kills_player() and not player.invulnerable():
+                    dead_players.add(player)
+
+                if enemy.can_be_killed() and player.alive():
+                    dead_enemies.add(enemy)
 
             for friend in self._players.values():
                 if player.intersects(friend) and friend.can_be_resurrected():
                     friend.resurrect()
+
+        for player in dead_players:
+            player.move([0, 0])
+            player.kill()
+
+        for enemy in dead_enemies:
+            self._kill_enemy(enemy)

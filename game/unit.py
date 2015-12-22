@@ -126,3 +126,6 @@ class Unit(object):
 
     def kills_player(self):
         return True
+
+    def can_be_killed(self):
+        return False
