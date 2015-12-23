@@ -167,7 +167,7 @@ def update():
 
             x = random.random() * (room.width - 1) + 0.5
             y = random.random() * (room.height - 1) + 0.5
-            player = game.player.Player(x, y, 1, 1, 4)
+            player = game.player.Player(room, x, y)
             room.add_player(player)
             connection.write_message(game.message.player_id(player))
 

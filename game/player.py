@@ -1,5 +1,6 @@
 import game.unit
 import game.util
+import game.bonus
 
 RESURRECTION_TIME = 3
 
@@ -7,12 +8,12 @@ RESURRECTION_TIME = 3
 class Player(game.unit.Unit):
     TYPE = 'PLAYER'
 
-    def __init__(self, x, y, width, height, speed):
-        super(Player, self).__init__(x, y, width, height, speed)
-
+    def __init__(self, room, x, y):
+        super(Player, self).__init__(room, x, y, 1, 1, 4)
         self._alive = True
         self._resurrection = 0
         self._ability = Invulnerability(self)
+        self._bonuses = []
 
     def kill(self):
         self._alive = False
@@ -29,6 +30,13 @@ class Player(game.unit.Unit):
     def use_ability(self):
         if self._ability.can_use():
             self._ability.use()
+
+    def give_bonus(self, bonus):
+        self._bonuses.append(bonus)
+        bonus.on_start(self)
+
+    def has_bonus(self, bonus_type):
+        return any(bonus.TYPE == bonus_type for bonus in self._bonuses)
 
     def can_be_resurrected(self):
         return not self._alive and self._resurrection == 0
@@ -56,6 +64,13 @@ class Player(game.unit.Unit):
         super().update(delta)
         self._resurrection = max(0, self._resurrection - delta)
         self._ability.update(delta)
+
+        for bonus in self._bonuses:
+            bonus.update(delta)
+            if not bonus.active():
+                bonus.on_stop(self)
+
+        self._bonuses = [bonus for bonus in self._bonuses if bonus.active()]
 
 
 class Invulnerability(object):

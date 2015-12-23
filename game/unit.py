@@ -9,7 +9,7 @@ class Unit(object):
     ghost = False
     simple_enemy = False
 
-    def __init__(self, x, y, width, height, speed):
+    def __init__(self, room, x, y, width, height, speed):
         self.id = Unit.id
         Unit.id += 1
 
@@ -22,9 +22,6 @@ class Unit(object):
 
         self._need_update = False
 
-        self._room = None
-
-    def set_room(self, room):
         self._room = room
 
     def to_dict(self):

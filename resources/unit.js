@@ -64,6 +64,14 @@ function drawTurretBullet(unit) {
     unit.graphics.beginFill('cyan').drawRect(-w / 2, -h / 2, w, h);
 }
 
+function drawSpeedBonus(unit) {
+    var w = unit.w * CELL_SIZE;
+    var h = unit.h * CELL_SIZE;
+
+    unit.graphics.clear();
+    unit.graphics.beginFill('gray').drawRect(-w / 2, -h / 2, w, h);
+}
+
 function updateUnit(unit, content) {
     unit.id = content['id'];
     unit.x = dx + content['x'] * CELL_SIZE;
@@ -93,7 +101,8 @@ var drawUnitFunctions = {
     'PLAYER': drawPlayer,
     'ENEMY': drawEnemy,
     'TURRET': drawTurret,
-    'TURRET_BULLET': drawTurretBullet
+    'TURRET_BULLET': drawTurretBullet,
+    'SPEED_BONUS': drawSpeedBonus
 };
 
 function drawUnit(unit) {

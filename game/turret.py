@@ -12,8 +12,8 @@ LIFE_TIME = 4
 class Turret(game.unit.Unit):
     TYPE = 'TURRET'
 
-    def __init__(self, x, y):
-        super().__init__(x, y, 1, 1, 0)
+    def __init__(self, room, x, y):
+        super().__init__(room, x, y, 1, 1, 0)
         self._rotation = random.random() * math.pi * 2
         self._bullet_timer = RELOAD_TIME
         self._prepare_timer = PREPARE_TIME
@@ -35,8 +35,7 @@ class Turret(game.unit.Unit):
             self._life_timer = max(0, self._life_timer - delta)
 
     def _shoot_bullet(self):
-        bullet = TurretBullet(self.x, self.y)
-        bullet.set_room(self._room)
+        bullet = TurretBullet(self._room, self.x, self.y)
         bullet.move((math.cos(self._rotation), math.sin(self._rotation)))
         self._room.add_enemy(bullet)
 
@@ -50,12 +49,11 @@ class Turret(game.unit.Unit):
         })
         return result
 
-    @staticmethod
-    def generate(room):
+    @classmethod
+    def generate(cls, room):
         x = random.randint(0, room.width - 1) + 0.5
         y = random.randint(0, room.height - 1) + 0.5
-        turret = Turret(x, y)
-        turret.set_room(room)
+        turret = cls(room, x, y)
         return turret
 
     def alive(self):
@@ -73,8 +71,8 @@ class TurretBullet(game.unit.Unit):
     ghost = True
     simple_enemy = True
 
-    def __init__(self, x, y):
-        super().__init__(x, y, 0.2, 0.2, 6)
+    def __init__(self, room, x, y):
+        super().__init__(room, x, y, 0.2, 0.2, 6)
 
     def alive(self):
         return not self._room.out_of_bound(self.x, self.y)

@@ -20,7 +20,22 @@ var announce;
 // TO DELETE
 var doge;
 
-var CELL_SIZE = 32;
+// TODO: Make better
+var PIXEL_RATIO = (function () {
+    var ctx = document.createElement('canvas').getContext('2d'),
+        dpr = window.devicePixelRatio || 1,
+        bsr = ctx.webkitBackingStorePixelRatio ||
+              ctx.mozBackingStorePixelRatio ||
+              ctx.msBackingStorePixelRatio ||
+              ctx.oBackingStorePixelRatio ||
+              ctx.backingStorePixelRatio || 1;
+
+    return dpr / bsr;
+})();
+
+var CELL_SIZE = 32 * PIXEL_RATIO;
+var TEXT_FONT = 20 * PIXEL_RATIO + 'px Arial';
+var TEXT_COLOR = 'white';
 
 //function getTimestamp() {
 //    return new Date().getTime()
@@ -63,8 +78,12 @@ function updateMap() {
 }
 
 function onResize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth * PIXEL_RATIO;
+    canvas.height = window.innerHeight * PIXEL_RATIO;
+
+    canvas.style.width = window.innerWidth + "px";
+    canvas.style.height = window.innerHeight + "px";
+    //canvas.getContext("2d").setTransform(PIXEL_RATIO / 2, 0, 0, PIXEL_RATIO / 2, 0, 0);
 
     var nickname_form = document.getElementById('nickname_form');
     var login_width = 240;
@@ -104,13 +123,13 @@ function init() {
     container = new createjs.Container();
     stage.addChild(container);
 
-    time = new createjs.Text('', '14px Arial', '#FFFFFF');
+    time = new createjs.Text('', TEXT_FONT, TEXT_COLOR);
     stage.addChild(time);
 
-    queue = new createjs.Text('', '24px Arial', '#FFFFFF');
+    queue = new createjs.Text('', TEXT_FONT, TEXT_COLOR);
     queue.visible = false;
 
-    announce = new createjs.Text('', '24px Arial', '#FFFFFF');
+    announce = new createjs.Text('', TEXT_FONT, TEXT_COLOR);
     announce.visible = false;
 
     createjs.Ticker.addEventListener('tick', tick);
@@ -188,7 +207,7 @@ function setNickname() {
 
     var nick = document.getElementById('nickname').value;
 
-    var nickname = new createjs.Text(nick, '24px Arial', '#FFFFFF');
+    var nickname = new createjs.Text(nick, TEXT_FONT, TEXT_COLOR);
     nickname.x = 300;
     nickname.y = 30;
     stage.addChild(nickname);
